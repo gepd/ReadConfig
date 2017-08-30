@@ -207,8 +207,9 @@ class ReadConfig(object):
     def remove_option(self, section, option):
         """
         Remove the specified option from the specified section. If
-        the section does not exist will return None. If the option
-        existed to be removed, return True; otherwise return False.
+        the section does not exist, it will return None. Otherwise
+        will return false if the option do not exist and True if
+        it's removed.
         """
         if(section in self._sections):
             if(option in self._options):
