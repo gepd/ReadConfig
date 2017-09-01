@@ -30,7 +30,6 @@ library version: 0.0.1
 
 from __future__ import absolute_import
 from __future__ import print_function
-from __future__ import division
 from __future__ import unicode_literals
 
 import re
@@ -108,30 +107,33 @@ class ReadConfig(object):
                     self._raw_values(line)
     
     def _raw_sections(self, line):
-        sec = self.SECTCRE.match(line)
-        if(sec):
-            sec = self._KEYCRE.sub('', line)
-            self._data[sec] = {}
-            self._cur_sect = sec
-            self._sections.append(sec)
+        is_section = self.SECTCRE.match(line)
+        if(is_section):
+            section = self._KEYCRE.sub('', line).rstrip()
+            self._data[section] = {}
+            self._cur_sect = section
+            self._sections.append(section)
             self._in_option = False
     
     def _raw_options(self, line):
-        opt = self.OPTRE.match(line)
-        if(opt):
-            opt = opt.group(0).strip()
-            if(opt):
-                self._data[self._cur_sect][opt] = []
-                self._cur_opt = opt
+        is_option = self.OPTRE.match(line)
+        if(is_option):
+            option = is_option.group(0).strip()
+            if(option):
+                section = self._cur_sect
+                self._data[section][option] = []
+                self._cur_opt = option
                 self._in_option = True
 
     def _raw_values(self, line):
         if(self._in_option):
-            val = self.VALRE.match(line)
-            if(val):
-                if(val.group(3)):
-                    val = val.group(3).rstrip()
-                    self._data[self._cur_sect][self._cur_opt].append(val)
+            is_value = self.VALRE.match(line)
+            if(is_value):
+                if(is_value.group(3)):
+                    section = self._cur_sect
+                    option = self._cur_opt
+                    value = is_value.group(3)
+                    self._data[section][option].append(value)
 
     def add_section(self, section):
         """
