@@ -151,14 +151,13 @@ class ReadConfig(object):
         If the given section exists, set the given option to the specified
         value; otherwise will return false. each argument expects a string
         """
-        if(section in self._sections):
-            if(option in self._data[section]):
-                self._data[section][option] = [str(value) + '\n']
-            else:
-                if(section not in self._new_opts):
-                    self._new_opts[section] = {}
-                self._new_opts[section][option] = [str(value) + '\n']
-                return True
+        if(section in self._new_sect):
+            if(section not in self._new_opts):
+                self._new_opts[section] = {}
+            self._new_opts[section][option] = [str(value) + '\n']
+        elif(section in self._data):
+            self._data[section][option] = [str(value) + '\n']                
+            return True
         return False
 
     def get(self, section, option):
