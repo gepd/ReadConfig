@@ -88,6 +88,7 @@ class ReadConfig(object):
     _new_opts = {}
     _del_sect = []
     _del_opts = {}
+    _bad_format = False
 
     def read(self, filepath):
         with open(filepath, 'rb') as file:
@@ -103,6 +104,9 @@ class ReadConfig(object):
                     self._raw_sections(line)
                     # store options
                     self._raw_options(line)
+                    # stop if file has a bad format
+                    if(self._bad_format):
+                        break
                     # store values
                     self._raw_values(line)
     
@@ -121,6 +125,9 @@ class ReadConfig(object):
             option = is_option.group(0).strip()
             if(option):
                 section = self._cur_sect
+                if(not section):
+                    self._bad_format = True
+                    return
                 self._data[section][option] = []
                 self._cur_opt = option
                 self._in_option = True
@@ -134,6 +141,9 @@ class ReadConfig(object):
                     option = self._cur_opt
                     value = is_value.group(3).rstrip()
                     self._data[section][option].append(value)
+    
+    def bad_format(self):
+        return self._bad_format
 
     def add_section(self, section):
         """

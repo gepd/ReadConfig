@@ -63,7 +63,8 @@ with open(filepath, 'w+') as configfile:
 
 | Method | Description |
 |--------|-------------|
-| add_section(section) | Add a section named section to the instance. If a section by the given name already exists, will return false|
+|bad_format()|It allows you to know if the readed file is well formatted or not. Will be considered a bad format, always when a config hasn't a section header.<br>True if the file is bad formatted, False if not|
+|add_section(section)|Add a section named section to the instance. If a section by the given name already exists, will return false|
 |set(section, option, value)|If the given section exists, set the given option to the specified value; otherwise will return false|
 |get(section, option)|Get an option value for the named section|
 |has_section(section)|Checks if the named section is present or not|
