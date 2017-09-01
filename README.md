@@ -7,7 +7,7 @@ What are the differences with *configparser*
 * Designed to work only with `.ini` files
 * This library doesn't wipe the comments in your `.ini` file
 * It's intended to work with non ascii characters
-* It's not use any raise exception, instead it return `None`, `False`, `True`
+* It's not using any raise exception at this moment
 * It don't support default values
 
 #### Examples:
@@ -84,4 +84,4 @@ If you have a problem or a feature request you can open a new [issue](https://gi
 
 #### Licence
 
-[MIT License](https://github.com/gepd/ReadConfig/blob/master/LICENCE)
+This project is under the [MIT License](https://github.com/gepd/ReadConfig/blob/master/LICENCE)
