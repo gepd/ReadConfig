@@ -298,9 +298,9 @@ class ReadConfig(object):
             new_sect = "\n[{0}]\n".format(section)
             new_data = new_data + new_sect
 
-            option = self._new_opts[section].items()
-            option = "{0} = {1}\n".format(option[0][0], option[0][1])
-            new_data = new_data + option
+            for key, value in self._new_opts[section].items():
+                option = "{0} = {1}".format(key, value[0])
+                new_data = new_data + option
 
         # write the file
         fileobject.write(new_data.encode(ENCODING))
