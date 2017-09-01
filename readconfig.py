@@ -132,7 +132,7 @@ class ReadConfig(object):
                 if(is_value.group(3)):
                     section = self._cur_sect
                     option = self._cur_opt
-                    value = is_value.group(3)
+                    value = is_value.group(3).rstrip()
                     self._data[section][option].append(value)
 
     def add_section(self, section):
@@ -265,10 +265,11 @@ class ReadConfig(object):
                         value = self._data[section][option]
                         
                         if(quant == 1):
-                            line = '{0} = {1}'.format(option, value[0])
+                            line = '{0} = {1}\n'.format(option, value[0])
                         else:
-                            value = "".join(value)
-                            line = '{0} = \n{1}'.format(option, value)
+                            value = "\n".join(value)
+                            line = '{0} = \n{1}\n'.format(option, value)
+
                         new_data = new_data + line
                         indx_option = indx_option + 1
 
