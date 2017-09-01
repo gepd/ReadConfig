@@ -84,4 +84,4 @@ If you have a problem or a feature request you can open a new [issue](https://gi
 
 #### Licence
 
-(https://github.com/gepd/ReadConfig/blob/master/LICENCE)[MIT License (MIT)]
+[MIT License](https://github.com/gepd/ReadConfig/blob/master/LICENCE)
