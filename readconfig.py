@@ -152,9 +152,13 @@ class ReadConfig(object):
         value; otherwise will return false. each argument expects a string
         """
         if(section in self._sections):
-            self._new_opts[section] = {}
-            self._new_opts[section][option] = value
-            return True
+            if(option in self._data[section]):
+                self._data[section][option] = [str(value) + '\n']
+            else:
+                if(section not in self._new_opts):
+                    self._new_opts[section] = {}
+                self._new_opts[section][option] = [str(value) + '\n']
+                return True
         return False
 
     def get(self, section, option):
