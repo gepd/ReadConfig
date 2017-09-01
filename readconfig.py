@@ -64,9 +64,7 @@ class ReadConfig(object):
     """
 
     # value regex
-    _VALUE_PATT = r"""
-    ((\w+\s\=+\s*)? ([^\#\[].+)|)
-    """
+    _VALUE_PATT = r'((\w+\s\=\s*)? (.+)|)'
 
     # Compiled regular expression for matching sections
     SECTCRE = re.compile(_SECTION_PATT, re.VERBOSE)
@@ -75,7 +73,7 @@ class ReadConfig(object):
     OPTRE = re.compile(_OPTION_PATT, re.VERBOSE)
 
     # Compiled regular expression for matching options
-    VALRE = re.compile(_VALUE_PATT, re.VERBOSE)
+    VALRE = re.compile(_VALUE_PATT)
 
     # Compiled regular expression for remove square brakets
     _KEYCRE = re.compile(r"\[|\]")
