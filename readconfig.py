@@ -233,44 +233,54 @@ class ReadConfig(object):
         Write a representation of the configuration to the specified
         file object.
         """
-        new_line = 0    # avoid to have two consecutive \n
-        new_data = ""   # where new file will be stored
-        section = None  # current covered section
+        new_line = 0     # avoid to have two consecutive \n
+        new_data = ""    # where new file will be stored
+        section = None   # current covered section
+        num_options = 0  # num of options in a section
+        indx_option = 0  # index of the current option
 
         for line in self._old_data:
             line = line + '\n'
 
             # section(s) to remove
-            sec = self.SECTCRE.match(line)
-            if(sec):
-                sec = self._KEYCRE.sub('', line).strip()
-                if(sec not in self._del_sect):
+            is_section = self.SECTCRE.match(line)
+            if(is_section):
+                section = self._KEYCRE.sub('', line).strip()
+
+                if(section not in self._del_sect):
                     new_data = new_data + line
                     new_line = 0
-                section = sec
+                
+                num_options = len(self._data[section])
+                indx_option = 0
 
-            # option(s) to remove
-            opt = self.OPTRE.match(line)
-            if(opt):
-                opt = opt.group(0).strip()
-                try:
-                    # remove option(s) with remove_option
-                    if(opt and opt not in self._del_opts[section]):
-                        new_data = new_data + line
-                        new_line = 0
-                except:
-                    # remove option(s) from removed section(s)
-                    if(section not in self._del_sect):
-                        new_data = new_data + line
-                        new_line = 0
+            # remove and update options
+            is_option = self.OPTRE.match(line)
+            if(is_option):
+                option = is_option.group(0).strip()
+                if(section not in self._del_sect and \
+                    option not in self._del_opts and option):
 
-            # multi-lines value
-            val = self.VALRE.match(line)
-            if(val):
-                if(val.group(3)):
-                    val = val.group(3).strip()
-                    if(line.strip() == val and section not in self._del_sect):
+                        quant = len(self._data[section][option])
+                        value = self._data[section][option]
+                        
+                        if(quant == 1):
+                            line = '{0} = {1}'.format(option, value[0])
+                        else:
+                            value = "".join(value)
+                            line = '{0} = \n{1}'.format(option, value)
                         new_data = new_data + line
+                        indx_option = indx_option + 1
+
+            # new options in section
+            if(indx_option == num_options and
+                section in self._new_opts):
+                options = self._new_opts[section]
+                for option in options:
+                    value = options[option]
+                    option = '{0} = {1}'.format(option, value[0])
+                    new_data = new_data + option
+                del self._new_opts[section]
 
             # count \n
             if(line == '\n'):
