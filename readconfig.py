@@ -177,10 +177,10 @@ class ReadConfig(object):
         if(section in self._sections):
             if(option in self._data[section].keys()):
                 values = self._data[section][option]
-                if(len(values > 1)):
+                if(len(values) > 1):
                     return values
                 else:
-                    return value[0]
+                    return values[0]
         return False
 
     def has_section(self, section):
