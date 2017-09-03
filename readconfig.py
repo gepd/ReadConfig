@@ -33,6 +33,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
+from os import path
 
 ENCODING = 'utf8'
 
@@ -91,6 +92,10 @@ class ReadConfig(object):
     _bad_format = False
 
     def read(self, filepath):
+
+        if(not path.exists(filepath)):
+            return False
+
         with open(filepath, 'rb') as file:
             for line in file:
 
