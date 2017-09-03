@@ -168,12 +168,19 @@ class ReadConfig(object):
         If the given section exists, set the given option to the specified
         value; otherwise will return false. each argument expects a string
         """
+        # add new or other option in new section
         if(section in self._new_sect):
             if(section not in self._new_opts):
                 self._new_opts[section] = {}
             self._new_opts[section][option] = [str(value) + '\n']
+            return True
+        # add option in existing section
         elif(section in self._data):
-            self._data[section][option] = [str(value) + '\n']                
+            if(option in self._data[section]):
+                self._data[section][option] = [str(value) + '\n']
+            else:
+                self._new_opts[section] = {}
+                self._new_opts[section][option] = [str(value) + '\n']       
             return True
         return False
 
