@@ -78,18 +78,19 @@ class ReadConfig(object):
     # Compiled regular expression for remove square brakets
     _KEYCRE = re.compile(r"\[|\]")
 
-    # data stored
-    _old_data = []
-    _data = {}
-    _sections = []
-    _cur_sect = None
-    _cur_opt = None
-    _in_option = False
-    _new_sect = []
-    _new_opts = {}
-    _del_sect = []
-    _del_opts = {}
-    _bad_format = False
+    def __init__(self):
+        # data stored
+        self._old_data = []
+        self._data = {}
+        self._sections = []
+        self._cur_sect = None
+        self._cur_opt = None
+        self._in_option = False
+        self._new_sect = []
+        self._new_opts = {}
+        self._del_sect = []
+        self._del_opts = {}
+        self._bad_format = False
 
     def read(self, filepath):
 
