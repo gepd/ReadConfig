@@ -319,13 +319,13 @@ class ReadConfig(object):
                     new_line = 0
 
         # add new sections and options
-        for section in self._new_sect:
-            new_sect = "\n[{0}]\n".format(section)
-            new_data = new_data + new_sect
-
-            for key, value in self._new_opts[section].items():
-                option = "{0} = {1}".format(key, value[0])
-                new_data = new_data + option
+        if(self._new_opts):
+            for section in self._new_sect:
+                new_sect = "\n[{0}]\n".format(section)
+                new_data = new_data + new_sect
+                for key, value in self._new_opts[section].items():
+                    option = "{0} = {1}".format(key, value[0])
+                    new_data = new_data + option
 
         # write the file
         fileobject.write(new_data.encode(ENCODING))
