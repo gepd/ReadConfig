@@ -102,7 +102,9 @@ class ReadConfig(object):
                 line = line.decode(ENCODING)
 
                 # store file in the current state
-                self._old_data.append(line.rstrip())
+                rsline = line.rstrip()
+                if(rsline not in self._old_data):
+                    self._old_data.append(rsline)
 
                 if(line and not line.startswith('#')):
                     # store sections
