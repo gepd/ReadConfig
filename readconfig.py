@@ -34,6 +34,7 @@ from __future__ import unicode_literals
 
 import re
 from os import path
+from collections import OrderedDict
 
 ENCODING = 'utf8'
 
@@ -59,9 +60,7 @@ class ReadConfig(object):
     \]"""
 
     # option regex
-    _OPTION_PATT = r"""
-    [a-zA-Z0-9_]*
-    """
+    _OPTION_PATT = r'(([\w]+)\s*\=? (.+)|)'
 
     # value regex
     _VALUE_PATT = r'((\w+\s\=\s*)? (.+)|)'
@@ -70,30 +69,31 @@ class ReadConfig(object):
     SECTCRE = re.compile(_SECTION_PATT, re.VERBOSE)
 
     # Compiled regular expression for matching options
-    OPTRE = re.compile(_OPTION_PATT, re.VERBOSE)
+    OPTRE = re.compile(_OPTION_PATT)
 
-    # Compiled regular expression for matching options
-    VALRE = re.compile(_VALUE_PATT)
+    # Compiled regular expression for matching values
+    VALRE = re.compile(_VALUE_PATT, re.VERBOSE)
 
     # Compiled regular expression for remove square brakets
     _KEYCRE = re.compile(r"\[|\]")
 
     def __init__(self):
         # data stored
-        self._old_data = []
-        self._data = {}
+        self._comment_count = 0
+        self._break_count = 0
+        self._data = OrderedDict()
         self._sections = []
         self._cur_sect = None
         self._cur_opt = None
         self._in_option = False
         self._new_sect = []
-        self._new_opts = {}
-        self._del_sect = []
-        self._del_opts = {}
+        self._new_opts = OrderedDict()
         self._bad_format = False
 
     def read(self, filepath):
-
+        """
+        Read the given file (if it exists)
+        """
         if(not path.exists(filepath)):
             return False
 
@@ -102,35 +102,57 @@ class ReadConfig(object):
 
                 line = line.decode(ENCODING)
 
-                # store file in the current state
-                rsline = line.rstrip()
-                if(rsline not in self._old_data):
-                    self._old_data.append(rsline)
+                # store breaklines
+                self._breakline(line)
+                # store comments
+                self._comments(line)
+                # store sections
+                self._raw_sections(line)
+                # store options
+                self._raw_options(line)
+                # stop if file has a bad format
+                if(self._bad_format):
+                    break
+                # store values
+                self._raw_values(line)
 
-                if(line and not line.startswith('#')):
-                    # store sections
-                    self._raw_sections(line)
-                    # store options
-                    self._raw_options(line)
-                    # stop if file has a bad format
-                    if(self._bad_format):
-                        break
-                    # store values
-                    self._raw_values(line)
-    
+    def _breakline(self, line):
+        """
+        Store breakline(s) of the source file
+        """
+        if('\r\n' == line):
+            key = "${0}".format(self._break_count)
+            self._data[key] = '\n'
+            self._break_count += 1
+
+    def _comments(self, line):
+        """
+        Store comments of the source file
+        """
+        if(line.startswith('#')):
+            key = '#{0}'.format(self._comment_count)
+            self._data[key] = line.rstrip()
+            self._comment_count += 1
+
     def _raw_sections(self, line):
+        """
+        Extract the section(s)
+        """
         is_section = self.SECTCRE.match(line)
         if(is_section):
             section = self._KEYCRE.sub('', line).rstrip()
-            self._data[section] = {}
+            self._data[section] = OrderedDict()
             self._cur_sect = section
             self._sections.append(section)
             self._in_option = False
     
     def _raw_options(self, line):
+        """
+        Extract the option(s)
+        """
         is_option = self.OPTRE.match(line)
         if(is_option):
-            option = is_option.group(0).strip()
+            option = is_option.group(2)
             if(option):
                 section = self._cur_sect
                 if(not section):
@@ -141,16 +163,26 @@ class ReadConfig(object):
                 self._in_option = True
 
     def _raw_values(self, line):
+        """
+        Extract the value(s)
+        """
         if(self._in_option):
             is_value = self.VALRE.match(line)
             if(is_value):
-                if(is_value.group(3)):
-                    section = self._cur_sect
-                    option = self._cur_opt
-                    value = is_value.group(3).rstrip()
+                section = self._cur_sect
+                option = self._cur_opt
+                value = is_value.group(3)
+                value = value if value else line
+                value = value.rstrip()
+                if(value):
                     self._data[section][option].append(value)
     
     def bad_format(self):
+        """
+        Checks if the readed file is well formatted or not.
+        Will be considered a bad format, if a section header isn't present.
+        True if the file is bad formatted, False if not
+        """
         return self._bad_format
 
     def add_section(self, section):
@@ -169,21 +201,16 @@ class ReadConfig(object):
         If the given section exists, set the given option to the specified
         value; otherwise will return false. each argument expects a string
         """
-        # add new or other option in new section
-        if(section in self._new_sect):
-            if(section not in self._new_opts):
-                self._new_opts[section] = {}
-            self._new_opts[section][option] = [str(value) + '\n']
+        if(section in self._data):
+            self._data[section][option] = [unicode(value)]
             return True
-        # add option in existing section
-        elif(section in self._data):
-            if(option in self._data[section]):
-                self._data[section][option] = [str(value) + '\n']
-            else:
-                self._new_opts[section] = {}
-                self._new_opts[section][option] = [str(value) + '\n']       
+        elif(section in self._new_sect):
+            if(section not in self._data):
+                self._data[section] = OrderedDict()
+            self._data[section][option] = [unicode(value)]
             return True
-        return False
+        else:
+            return False
 
     def get(self, section, option):
         """
@@ -232,7 +259,8 @@ class ReadConfig(object):
         section in fact existed, return True. Otherwise return False.
         """
         if(section in self._sections):
-            self._del_sect.append(section)
+            del self._data[section]
+            self._sections.remove(section)
             return True
         return False
 
@@ -244,10 +272,8 @@ class ReadConfig(object):
         it's removed.
         """
         if(section in self._sections):
-            if(option in self._options):
-                if(section not in self._del_opts):
-                    self._del_opts[section] = []
-                self._del_opts[section].append(option)
+            if(option in self._data[section]):
+                del self._data[section][option]
                 return True
             return False
         return None
@@ -257,75 +283,35 @@ class ReadConfig(object):
         Write a representation of the configuration to the specified
         file object.
         """
-        new_line = 0     # avoid to have two consecutive \n
-        new_data = ""    # where new file will be stored
-        section = None   # current covered section
-        num_options = 0  # num of options in a section
-        indx_option = 0  # index of the current option
+        new_data = '' # where file will be stored
 
-        for line in self._old_data:
-            line = line + '\n'
-
-            # section(s) to remove
-            is_section = self.SECTCRE.match(line)
-            if(is_section):
-                section = self._KEYCRE.sub('', line).strip()
-
-                if(section not in self._del_sect):
-                    new_data = new_data + line
-                    new_line = 0
-                
-                num_options = len(self._data[section])
-                indx_option = 0
-
-            # remove and update options
-            is_option = self.OPTRE.match(line)
-            if(is_option):
-                option = is_option.group(0).strip()
-                if(section not in self._del_sect and \
-                    option not in self._del_opts and option):
-
-                        quant = len(self._data[section][option])
-                        value = self._data[section][option]
-                        
-                        if(quant == 1):
-                            line = '{0} = {1}\n'.format(option, value[0])
-                        else:
-                            value = "\n".join(value)
-                            line = '{0} = \n{1}\n'.format(option, value)
-
-                        new_data = new_data + line
-                        indx_option = indx_option + 1
-
-            # new options in section
-            if(indx_option == num_options and
-                section in self._new_opts):
-                options = self._new_opts[section]
-                for option in options:
-                    value = options[option]
-                    option = '{0} = {1}'.format(option, value[0])
-                    new_data = new_data + option
-                del self._new_opts[section]
-
-            # count \n
-            if(line == '\n'):
-                new_line = new_line + 1
-
-            # write comments and new line char
-            # new_line will avoid more than two \n consecutive
-            if(line.startswith('#') or line == '\n' and new_line < 2):
-                new_data = new_data + line
+        for linedata in self._data:
+            line = self._data[linedata]
+            
+            if(type(line) is type(unicode())):
+                # comment(s)
                 if(line.startswith('#')):
-                    new_line = 0
+                    new_data  += line + '\n'
+                # break line(s)
+                else:
+                    new_data += '\n'
+            else:
+                # header(s)
+                new_data  += '[{0}]\n'.format(linedata)
 
-        # add new sections and options
-        if(self._new_opts):
-            for section in self._new_sect:
-                new_sect = "\n[{0}]\n".format(section)
-                new_data = new_data + new_sect
-                for key, value in self._new_opts[section].items():
-                    option = "{0} = {1}".format(key, value[0])
-                    new_data = new_data + option
+                # option(s) - value(s)
+                for key, value in line.iteritems():
+                    if(len(value)):
+                        if(len(value) > 1):
+                            value = "\n".join(value)
+                            new_data += '{0} = \n{1}\n'.format(key, value)
+                        else:
+                            print(value)
+                            new_data += '{0} = {1}\n'.format(key, value[0])
+                    
+        
+        # remove final line breaks
+        new_data = new_data.rstrip()
 
-        # write the file
+        # write in file
         fileobject.write(new_data.encode(ENCODING))
