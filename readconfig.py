@@ -129,7 +129,7 @@ class ReadConfig(object):
         """
         Store comments of the source file
         """
-        if(line.startswith('#')):
+        if(line.startswith('#') and not self._cur_sect):
             key = '#{0}'.format(self._comment_count)
             self._data[key] = line.rstrip()
             self._comment_count += 1
