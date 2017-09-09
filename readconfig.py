@@ -300,18 +300,17 @@ class ReadConfig(object):
                 new_data  += '[{0}]\n'.format(linedata)
 
                 # option(s) - value(s)
-                for key, value in line.iteritems():
-                    if(len(value)):
-                        if(len(value) > 1):
-                            value = "\n".join(value)
-                            new_data += '{0} = \n{1}\n'.format(key, value)
+                for key, values in line.items():
+                    comcount = [x for x in values if x.startswith('#')]
+                    if(len(values) > 1):
+                        values = "\n".join(values)
+                        if(len(comcount) == 0):
+                            values = '\n' + values
                         else:
-                            print(value)
-                            new_data += '{0} = {1}\n'.format(key, value[0])
-                    
-        
-        # remove final line breaks
-        new_data = new_data.rstrip()
+                            values = ' ' + values
+                        new_data += '{0} ={1}\n'.format(key, values)
+                    else:
+                        new_data += '{0} = {1}\n'.format(key, values[0])
 
         # write in file
         fileobject.write(new_data.encode(ENCODING))
