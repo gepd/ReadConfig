@@ -201,13 +201,14 @@ class ReadConfig(object):
         If the given section exists, set the given option to the specified
         value; otherwise will return false. each argument expects a string
         """
+        value = str(value)
         if(section in self._data):
-            self._data[section][option] = [unicode(value)]
+            self._data[section][option] = [value]
             return True
         elif(section in self._new_sect):
             if(section not in self._data):
                 self._data[section] = OrderedDict()
-            self._data[section][option] = [unicode(value)]
+            self._data[section][option] = [value]
             return True
         else:
             return False
