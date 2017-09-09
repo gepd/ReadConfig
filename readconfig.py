@@ -36,7 +36,7 @@ import re
 from os import path
 from collections import OrderedDict
 
-ENCODING = 'utf8'
+ENCODING = 'latin-1'
 
 class ReadConfig(object):
     """Configuration file parser.
