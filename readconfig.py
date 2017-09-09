@@ -219,11 +219,15 @@ class ReadConfig(object):
         """
         if(section in self._sections):
             if(option in self._data[section].keys()):
-                values = self._data[section][option]
+                values = []
+                for op in self._data[section][option]:
+                    if(not op.startswith('#')):
+                        values.append(op)
+
                 if(len(values) > 1):
                     return values
                 else:
-                    return values[0]
+                    return values
         return False
 
     def has_section(self, section):
