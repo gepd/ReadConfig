@@ -63,7 +63,7 @@ class ReadConfig(object):
     _OPTION_PATT = r'(([\w]+)\s*\=? (.+)|)'
 
     # value regex
-    _VALUE_PATT = r'((\w+\s\=\s*)? (.+)|)'
+    _VALUE_PATT = r'(([\w]+\s)? (.+)|)'
 
     # Compiled regular expression for matching sections
     SECTCRE = re.compile(_SECTION_PATT, re.VERBOSE)
@@ -174,7 +174,7 @@ class ReadConfig(object):
                 value = is_value.group(3)
                 value = value if value else line
                 value = value.rstrip()
-                if(value):
+                if(value and not value.startswith('=')):
                     self._data[section][option].append(value)
     
     def bad_format(self):
