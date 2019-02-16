@@ -127,9 +127,9 @@ class ReadConfig(object):
 
     def _comments(self, line):
         """
-        Store comments of the source file
+        Store comments from source file
         """
-        if(line.startswith('#') and not self._cur_sect):
+        if(line.startswith('#') or line.startswith(';') and not self._cur_sect):
             key = '#{0}'.format(self._comment_count)
             self._data[key] = line.rstrip()
             self._comment_count += 1
@@ -221,8 +221,8 @@ class ReadConfig(object):
             if(option in self._data[section].keys()):
                 values = []
                 for op in self._data[section][option]:
-                    if(not op.startswith('#')):
                         values.append(op)
+                    if(not op.startswith(';') and not op.startswith('#')):
 
                 if(len(values) > 1):
                     return values
@@ -295,7 +295,7 @@ class ReadConfig(object):
             
             if(type(line) is type(unicode())):
                 # comment(s)
-                if(line.startswith('#')):
+                if(line.startswith('#') or line.startswith(';')):
                     new_data  += line + '\n'
                 # break line(s)
                 else:
@@ -306,7 +306,7 @@ class ReadConfig(object):
 
                 # option(s) - value(s)
                 for key, values in line.items():
-                    comcount = [x for x in values if x.startswith('#')]
+                    comcount = [x for x in values if x.startswith('#') or x.startswith(';')]
                     if(len(values) > 1):
                         values = "\n".join(values)
                         if(len(comcount) == 0):
