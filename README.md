@@ -70,7 +70,7 @@ with open(filepath, 'w+') as configfile:
 |has_section(section)|Checks if the named section is present or not|
 |has_option(section, option)|Checks if the named option is present  or not|
 |sections()|Return a list of the sections available|
-|Return a list of the sections available|Returns a list of options available in the specified section|
+|options(section)|Returns a list of options available in the specified section|
 |remove_section(section)|Remove the specified section from the configuration. If the section in fact existed, return True. Otherwise return False.|
 |remove_option(section, option)|Remove the specified option from the specified section. If the section does not exist, it will return None. Otherwise will return false if the option do not exist and True if it's removed|
 |write(fileobject)|Write a representation of the configuration to the specified file object|
@@ -80,6 +80,31 @@ with open(filepath, 'w+') as configfile:
 If you have a problem or a feature request you can open a new [issue](https://github.com/gepd/ReadConfig/issues) or send a [pull request](https://github.com/gepd/ReadConfig/pulls)
 
 #### Changelog
+
+* 16/02/2019 0.0.5
+
+	- Accept comments starting with `;` and `#`
+	- Eval value in get method
+
+* 17/09/2017 0.0.4
+
+	- avoid to store an option in values
+	- Improved break line recognition
+
+* 06/10/2017 0.0.3
+
+	- Factorized code
+	- Avoids to store comments inside a section
+	- Write Method: Checks if the new section(s) has option(s) before to add it
+	- set Method: Improved way to handled new option(s) of an existing section
+	- Read Method: avoid saving duplicate lines
+	- Read method: stop reading method if the file to read do not exists.
+	- New bad_format method: it allow you to know if the readed file is well formatted
+	- Fixed end of line when an option value is extracted and write in a file
+	- Write Method: Bug fix to store all options in the new section
+	- Write Method: Improved the way to handle multi-lines values
+	- Get Method: Improved the way to return a value, if it have more than one value
+	- Update regex to subtract the option's value
 
 * 30/08/2017 0.0.1 Project started 
 

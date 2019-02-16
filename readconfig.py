@@ -25,7 +25,7 @@ SOFTWARE.
 
 author: gepd
 website: https://github.com/gepd/ReadConfig
-library version: 0.0.4
+library version: 0.0.5
 """
 
 from __future__ import absolute_import
