@@ -220,9 +220,16 @@ class ReadConfig(object):
         if(section in self._sections):
             if(option in self._data[section].keys()):
                 values = []
+                value = None
                 for op in self._data[section][option]:
-                        values.append(op)
                     if(not op.startswith(';') and not op.startswith('#')):
+
+                        try:
+                            value = eval(op)
+                        except(NameError, SyntaxError) as e:
+                            value = op.strip()
+
+                        values.append(value)
 
                 if(len(values) > 1):
                     return values
