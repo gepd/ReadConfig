@@ -51,6 +51,8 @@ class ReadConfig(object):
                   the parsed database.
     """
 
+    comment_prefixes = ('#', ';')
+
     # Parsing regular expressions
 
     # Section regex
@@ -129,7 +131,7 @@ class ReadConfig(object):
         """
         Store comments from source file
         """
-        if(line.startswith('#') or line.startswith(';') and not self._cur_sect):
+        if(line.startswith(ReadConfig.comment_prefixes) and not self._cur_sect):
             key = '#{0}'.format(self._comment_count)
             self._data[key] = line.rstrip()
             self._comment_count += 1
@@ -302,7 +304,7 @@ class ReadConfig(object):
             
             if(type(line) is type(unicode())):
                 # comment(s)
-                if(line.startswith('#') or line.startswith(';')):
+                if(line.startswith(ReadConfig.comment_prefixes)):
                     new_data  += line + '\n'
                 # break line(s)
                 else:
@@ -313,7 +315,7 @@ class ReadConfig(object):
 
                 # option(s) - value(s)
                 for key, values in line.items():
-                    comcount = [x for x in values if x.startswith('#') or x.startswith(';')]
+                    comcount = [x for x in values if x.startswith(ReadConfig.comment_prefixes)]
                     if(len(values) > 1):
                         values = "\n".join(values)
                         if(len(comcount) == 0):
