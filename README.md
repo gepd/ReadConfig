@@ -81,6 +81,11 @@ If you have a problem or a feature request you can open a new [issue](https://gi
 
 #### Changelog
 
+* 17/02/2019 0.0.6
+
+	- Reads option/value without space in between `option=value`
+	- Minor fixes writing the file
+
 * 16/02/2019 0.0.5
 
 	- Accept comments starting with `;` and `#`

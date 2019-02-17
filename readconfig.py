@@ -25,7 +25,7 @@ SOFTWARE.
 
 author: gepd
 website: https://github.com/gepd/ReadConfig
-library version: 0.0.5
+library version: 0.0.6
 """
 
 from __future__ import absolute_import
@@ -62,10 +62,10 @@ class ReadConfig(object):
     \]"""
 
     # option regex
-    _OPTION_PATT = r'(([\w]+)\s*\=? (.+)|)'
+    _OPTION_PATT = r'(([\w]+)\s*=+\s*?(.+)|)'
 
     # value regex
-    _VALUE_PATT = r'(([\w]+\s=*\s*)? (.+)|)'
+    _VALUE_PATT = r'(([\w]+)\s*=+?\s*(.+)|)'
 
     # Compiled regular expression for matching sections
     SECTCRE = re.compile(_SECTION_PATT, re.VERBOSE)
@@ -302,7 +302,7 @@ class ReadConfig(object):
         for linedata in self._data:
             line = self._data[linedata]
             
-            if(type(line) is type(unicode())):
+            if(type(line) is type(str())):
                 # comment(s)
                 if(line.startswith(ReadConfig.comment_prefixes)):
                     new_data  += line + '\n'
@@ -327,4 +327,4 @@ class ReadConfig(object):
                         new_data += '{0} = {1}\n'.format(key, values[0])
 
         # write in file
-        fileobject.write(new_data.encode(ENCODING))
+        fileobject.write(new_data)
